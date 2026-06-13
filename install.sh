@@ -22,7 +22,7 @@ PANEL_PORT=2095 # Дефолтный порт S-UI
 echo -e "${GREEN}[1/5] Установка зависимостей (Nginx, curl, socat)...${NC}"
 apt update && apt install -y curl wget nginx socat unzip tar git
 
-# 4. Выпуск SSL сертификата через acme.sh (как в топ-скриптах)
+# 4. Выпуск SSL сертификата через acme.sh
 echo -e "${GREEN}[2/5] Выпуск SSL сертификата Let's Encrypt...${NC}"
 systemctl stop nginx # Временно тушим Nginx для проверки портов
 
@@ -39,15 +39,15 @@ mkdir -p /etc/s-ui/certs/
 
 # 5. Установка официальной панели S-UI (alireza0)
 echo -e "${GREEN}[3/5] Скачивание и установка панели S-UI...${NC}"
-# Берем официальный установщик S-UI, но прокидываем его без интерактива
 bash <(curl -Ls https://raw.githubusercontent.com/alireza0/s-ui/master/install.sh) <<EOF
 y
 EOF
 
 # 6. Скачивание сайта-заглушки
 echo -e "${GREEN}[4/5] Установка сайта-заглушки...${NC}"
+mkdir -p /var/www/html
 rm -rf /var/www/html/*
-# Качаем простую HTML-игру или шаблон (например, фейковое портфолио)
+# Качаем простую HTML-игру
 wget -O /var/www/html/web.zip https://github.com/banyasw/vless-html/raw/main/templates/game.zip
 unzip -o /var/www/html/web.zip -d /var/www/html/
 rm -f /var/www/html/web.zip
@@ -78,7 +78,6 @@ server {
     }
 
     # Проксирование панели S-UI (вход в админку)
-    # Боты увидят игру, а вы по пути /panel попадете в S-UI
     location /panel/ {
         proxy_redirect off;
         proxy_pass http://127.0.0.1:$PANEL_PORT/;
